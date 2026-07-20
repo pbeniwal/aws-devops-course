@@ -1,0 +1,6 @@
+
+
+
+aws cloudformation update-stack \
+  --stack-name demo \
+  --template-body file://01-basic-template.yaml

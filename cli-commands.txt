@@ -1,0 +1,19 @@
+# List s3 bucket
+
+aws s3 ls
+
+# Command to create bucket
+aws s3 mb s3://demo-uniqye-bucket-name
+
+# Command to delete bucket
+aws s3 rb s3://demo-uniqye-bucket-name
+
+# Create EC2 instance
+aws ec2 run-instances \
+    --image-id ami-01edba92f9036f76e \
+    --count 1 \
+    --instance-type t2.micro \
+    --key-name aws \
+    --security-group-ids sg-02112c708e71bd887 \
+    --subnet-id subnet-00dbab1392f8e9f12
+

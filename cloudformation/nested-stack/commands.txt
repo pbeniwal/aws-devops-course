@@ -1,0 +1,25 @@
+# Bucket names must be globally unique - use your account ID as a suffix
+ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+BUCKET_NAME="demo-template-${ACCOUNT_ID}"
+
+aws s3 mb s3://${BUCKET_NAME}
+
+aws s3 cp network.yaml s3://${BUCKET_NAME}/network.yaml
+aws s3 cp app.yaml s3://${BUCKET_NAME}/app.yaml
+
+aws cloudformation create-stack \
+  --stack-name Demo-Parent-Stack \
+  --template-body file://parent.yaml \
+  --capabilities CAPABILITY_IAM \
+  --parameters \
+      ParameterKey=NetworkTemplateURL,ParameterValue=https://${BUCKET_NAME}.s3.amazonaws.com/network.yaml \
+      ParameterKey=AppTemplateURL,ParameterValue=https://${BUCKET_NAME}.s3.amazonaws.com/app.yaml
+
+
+# Cleanup all the resources
+
+aws cloudformation delete-stack \
+  --stack-name Demo-Parent-Stack 
+
+aws s3 rb s3://${BUCKET_NAME} --force
+

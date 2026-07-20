@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Demo - Nested Stack Parent. Composes the Network stack and the App stack, passing outputs from Network as parameters into App.
+
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t3.micro
+    AllowedValues:
+      - t3.micro
+      - t3.small
+      - t2.micro
+    Description: Enter t3.micro, t3.small, or t2.micro. Default is t3.micro.
+
+  SSHLocation:
+    Type: String
+    Default: 0.0.0.0/0
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    Description: The IP address range (CIDR) that can SSH into the instance.
+
+  NetworkTemplateURL:
+    Type: String
+    Description: S3 URL of network.yaml
+
+  AppTemplateURL:
+    Type: String
+    Description: S3 URL of app.yaml
+
+Resources:
+  NetworkStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref NetworkTemplateURL
+      TimeoutInMinutes: 10
+
+  AppStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: NetworkStack
+    Properties:
+      TemplateURL: !Ref AppTemplateURL
+      TimeoutInMinutes: 15
+      Parameters:
+        VpcId: !GetAtt NetworkStack.Outputs.VpcId
+        SubnetId: !GetAtt NetworkStack.Outputs.PublicSubnetId
+        InstanceTypeParameter: !Ref InstanceTypeParameter
+        SSHLocation: !Ref SSHLocation
+
+Outputs:
+  WebServerPublicIP:
+    Description: Public IP of the web server (from the nested App stack)
+    Value: !GetAtt AppStack.Outputs.WebServerPublicIP

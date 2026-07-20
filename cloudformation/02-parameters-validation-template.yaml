@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Adds a Parameters section. Demonstrates AllowedValues and AllowedPattern validation, wired into real resources (Security Group + EC2 instance).
+
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t3.micro
+    AllowedValues:
+      - t3.micro
+      - t3.small
+      - t2.micro
+    Description: Enter t3.micro, t3.small, or t2.micro. Default is t3.micro.
+
+  SSHLocation:
+    Type: String
+    Default: 0.0.0.0/0
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+    Description: The IP address range (CIDR) that can SSH into the instance.
+
+Resources:
+  DemoWebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow SSH access from a specified CIDR range
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SSHLocation
+
+  DemoWebServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceTypeParameter
+      ImageId: "{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64}}"
+      SecurityGroupIds:
+        - !GetAtt DemoWebServerSecurityGroup.GroupId
+      Tags:
+        - Key: Name
+          Value: Demo-EC2Server
