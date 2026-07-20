@@ -1,0 +1,13 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Launches a single EC2 instance. Only the Resources section is required.
+
+Resources:
+  DemoWebServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.micro
+      ImageId: "{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64}}"
+      Tags:
+        - Key: Name
+          Value: Demo-EC2Server
