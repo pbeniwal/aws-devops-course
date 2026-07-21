@@ -1,0 +1,29 @@
+# Install nvm (Node Version Manager) - the cleanest way to manage Node in WSL
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+# Install latest LTS Node
+nvm install --lts
+nvm use --lts
+
+# Confirm node is found without which cdk does not work
+node -v
+npm -v
+
+# Install cdk
+npm install -g aws-cdk
+
+# now lets start working with cdk
+
+rm -rf .venv
+python -m venv .venv
+source .venv/bin/activate
+
+pip install -r requirements.txt
+
+cdk bootstrap   # one-time per account/region
+
+cdk synth
+
+cdk deploy
+
+cdk destroy

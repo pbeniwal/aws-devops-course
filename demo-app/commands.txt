@@ -1,0 +1,67 @@
+aws codecommit create-repository \
+  --repository-name demo-app \
+  --repository-description "CI/CD demo - simple Flask webapp"
+
+pip install git-remote-codecommit
+
+# Clone using the grc:// protocol
+git clone codecommit://demo-app
+cd demo-app
+
+cp /path/to/app.py /path/to/test_app.py /path/to/requirements.txt /path/to/README.md .
+git add .
+git commit -m "Initial commit: simple Flask web app"
+git push origin main
+
+
+
+git checkout -b feature/update-homepage
+
+
+Edit app.py — change the homepage text to "Version 1.1"
+
+
+
+git add app.py
+git commit -m "Update homepage text to v1.1"
+git push origin feature/update-homepage
+
+
+
+
+Console: Pull requests → Create pull request → source: feature/update-homepage, destination: main → show the diff view live (matches slide 14's "view comparisons between working and destination branches").
+
+
+aws codecommit create-approval-rule-template \
+  --approval-rule-template-name "Require-1-Approval" \
+  --approval-rule-template-content '{
+    "Version": "2018-11-08",
+    "DestinationReferences": ["refs/heads/main"],
+    "Approvers": {"NumberOfApprovalsNeeded": 1}
+  }'
+
+aws codecommit associate-approval-rule-template-with-repository \
+  --approval-rule-template-name "Require-1-Approval" \
+  --repository-name demo-app
+
+
+
+---Triggers
+
+
+aws codecommit put-repository-triggers \
+  --repository-name demo-app \
+  --triggers '[{
+    "name": "NotifyOnPush",
+    "destinationArn": "arn:aws:sns:us-east-1:926976112852:email-me",
+    "events": ["updateReference"]
+  }]'
+
+
+=====================================
+
+pip install -r requirements.txt
+python app.py
+
+pytest test_app.py -v
+

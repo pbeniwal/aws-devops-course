@@ -1,0 +1,29 @@
+# Intalling on Amazon Linux 2023
+
+sudo dnf update -y
+
+sudo wget -O /etc/yum.repos.d/jenkins.repo \
+    https://pkg.jenkins.io/redhat-stable/jenkins.repo
+
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+
+sudo dnf upgrade -y
+
+sudo dnf install java-21-amazon-corretto -y
+
+sudo dnf install jenkins -y
+
+sudo systemctl enable jenkins
+
+sudo systemctl start jenkins
+
+============================================================
+Once it starts go to public_ip:8080 and paste password from
+=============================================================
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+## Install susgested plugins
+
+## Setup a admin user when prompted
+
+## Then install CodeBuild Plugin
